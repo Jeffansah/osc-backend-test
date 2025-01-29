@@ -13,16 +13,11 @@ import {
   UserType,
 } from "../types/types-ql";
 import { Course } from "../../mongo/models/CourseModel";
-import bcrypt from "bcrypt";
 import { User } from "../../mongo/models/UserModel";
 import { encryptPassword } from "../../utils/encryptPassword";
 import { decryptPassword } from "../../utils/decryptPassword";
 import { generateToken } from "../../utils/generateToken";
-import { log } from "console";
-import {
-  Collection,
-  ICollectionDoc,
-} from "../../mongo/models/CollectionsModel";
+import { Collection } from "../../mongo/models/CollectionsModel";
 
 export const mutation = new GraphQLObjectType({
   name: "Mutation",
@@ -39,7 +34,7 @@ export const mutation = new GraphQLObjectType({
           throw new Error("Unauthorized");
         }
 
-        const currentUser = await User.findById(req.user._id);
+        const currentUser = await User.findById(req.user._id); // Find the authenticated user
 
         if (!currentUser) {
           throw new Error("User not found");
@@ -86,14 +81,9 @@ export const mutation = new GraphQLObjectType({
           throw new Error("Course not found");
         }
 
-        // Check if the authenticated user is the author of the course or is not an admin
+        // Check if the authenticated user is the author of the course or is an admin
         if (course.authorId !== req.user._id && req.user.role !== "admin") {
           throw new Error("Unauthorized to update this course");
-        }
-
-        // If not, throw an error
-        if (!course) {
-          throw new Error(`Course with ID ${id} not found`);
         }
 
         // Create an update object based on provided input
@@ -375,6 +365,37 @@ export const mutation = new GraphQLObjectType({
         // Clear the token cookie to log out the user
         res.clearCookie("token");
         return true;
+      },
+    },
+    deleteUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { id }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user) {
+          throw new Error("Unauthorized");
+        }
+
+        // Find the user by ID and if it exists
+        const user = await User.findById(id);
+
+        if (!user) {
+          throw new Error(`User with ID ${id} not found`);
+        }
+
+        // Check if the authenticated user is the user to be deleted or is an admin
+        if (user._id !== req.user._id || req.user.role !== "admin") {
+          throw new Error("Unauthorized to delete this user");
+        }
+
+        const deletedUser = await User.findByIdAndDelete(id); // Find user by id and delete the user
+
+        if (!deletedUser) {
+          throw new Error(`User with ID ${id} not found`);
+        }
+        return deletedUser; // Return the deleted user
       },
     },
   },
