@@ -27,7 +27,6 @@ app.use(
 // Running the server
 connectToDatabase().then(() => {
   app.listen(port, () => {
-    console.clear();
     console.log(`Server is running on port ${port}`);
   });
 });
