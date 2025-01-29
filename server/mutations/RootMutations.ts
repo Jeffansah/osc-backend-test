@@ -5,6 +5,8 @@ import {
   GraphQLString,
 } from "graphql";
 import {
+  CollectionInputType,
+  CollectionType,
   CourseInputType,
   CourseType,
   UserLoginInputType,
@@ -18,6 +20,7 @@ import { encryptPassword } from "../../utils/encryptPassword";
 import { decryptPassword } from "../../utils/decryptPassword";
 import { generateToken } from "../../utils/generateToken";
 import { log } from "console";
+import { Collection } from "../../mongo/models/CollectionsModel";
 
 export const mutation = new GraphQLObjectType({
   name: "Mutation",
@@ -38,6 +41,17 @@ export const mutation = new GraphQLObjectType({
 
         if (!currentUser) {
           throw new Error("User not found");
+        }
+
+        // Check if a course with the same title and author already exists
+        const existingCourse = await Course.findOne({
+          title: input.title,
+          authorId: currentUser._id,
+        });
+
+        // If it exists, throw an error
+        if (existingCourse) {
+          throw new Error("Course with this title and author already exists");
         }
 
         // Create a new course based on the input
@@ -132,6 +146,123 @@ export const mutation = new GraphQLObjectType({
     },
 
     /* COLLECTIONS MUTATIONS */
+    addCollection: {
+      type: CollectionType,
+      args: {
+        input: {
+          type: new GraphQLNonNull(CollectionInputType),
+        },
+      },
+      resolve: async (_, { name }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // Create a new collection based on the input
+        const newCollection = await Collection.create({
+          name,
+          courses: [], // Initialize the courses array with an empty array
+        });
+        return newCollection; // Return the newly created collection
+      },
+    },
+    addToCollection: {
+      type: CollectionType,
+      args: {
+        collectionId: { type: new GraphQLNonNull(GraphQLString) },
+        courseId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { collectionId, courseId }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // Find the collection by ID and if it exists
+        const collection = await Collection.findById(collectionId);
+
+        if (!collection) {
+          throw new Error(`Collection with ID ${collectionId} not found`);
+        }
+
+        // Find the course by ID and if it exists
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+          throw new Error(`Course with ID ${courseId} not found`);
+        }
+
+        const updatedCollection = await Collection.findByIdAndUpdate(
+          collectionId,
+          { $push: { courses: courseId } }, // add courseId to courses array
+          { new: true } // Return the updated document
+        );
+
+        return updatedCollection; // Return the updated collection
+      },
+    },
+    removeFromCollection: {
+      type: CollectionType,
+      args: {
+        collectionId: { type: new GraphQLNonNull(GraphQLString) },
+        courseId: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { collectionId, courseId }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // Find the collection by ID and if it exists
+        const collection = await Collection.findById(collectionId);
+
+        if (!collection) {
+          throw new Error(`Collection with ID ${collectionId} not found`);
+        }
+
+        // Find the course by ID and if it exists
+        const course = await Course.findById(courseId);
+
+        if (!course) {
+          throw new Error(`Course with ID ${courseId} not found`);
+        }
+
+        const updatedCollection = await Collection.findByIdAndUpdate(
+          collectionId,
+          { $pull: { courses: courseId } }, // remove courseId from the course array
+          { new: true } // Return the updated document
+        );
+
+        return updatedCollection; // Return the updated collection
+      },
+    },
+    deleteCollection: {
+      type: CollectionType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { id }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // Find the collection by ID and if it exists
+        const collection = await Collection.findById(id);
+
+        if (!collection) {
+          throw new Error(`Collection with ID ${id} not found`);
+        }
+
+        const deletedCollection = await Collection.findByIdAndDelete(id); // Find collection by id and delete the collection
+
+        if (!deletedCollection) {
+          throw new Error(`Collection with ID ${id} not found`);
+        }
+        return deletedCollection; // Return the deleted collection
+      },
+    },
 
     /* USERS MUTATIONS */
     register: {
@@ -161,7 +292,7 @@ export const mutation = new GraphQLObjectType({
           role: newUser.role,
         });
 
-        // Setting the token in an HTTP-only cookie
+        // Set the token in an HTTP-only cookie
         res.cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", // Set to true in production
@@ -192,7 +323,7 @@ export const mutation = new GraphQLObjectType({
           role: user.role,
         });
 
-        // Setting the token in an HTTP-only cookie
+        // Set the token in an HTTP-only cookie
         res.cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production", // Set to true in production

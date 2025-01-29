@@ -5,6 +5,8 @@ export interface ICourseDoc extends Document {
   description: string;
   duration: string;
   outcome: string;
+  authorId: string;
+  collectionId?: string;
 }
 
 const CourseSchema = new Schema<ICourseDoc>(
@@ -13,6 +15,8 @@ const CourseSchema = new Schema<ICourseDoc>(
     description: { type: String, required: true },
     duration: { type: String, required: true },
     outcome: { type: String, required: true },
+    authorId: { type: String, required: true },
+    collectionId: { type: String },
   },
   { timestamps: true }
 );

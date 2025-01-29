@@ -49,6 +49,13 @@ export const CollectionType = new GraphQLObjectType({
   }),
 });
 
+export const CollectionInputType = new GraphQLInputObjectType({
+  name: "CollectionInput",
+  fields: {
+    name: { type: GraphQLString },
+  },
+});
+
 /** USER **/
 // User Role Enum Type
 const UserRoleEnumType = new GraphQLEnumType({
