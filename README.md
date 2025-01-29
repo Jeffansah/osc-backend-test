@@ -74,3 +74,19 @@ npm run dev
 
 5. **Access the GraphQL Playground:**:
    Open your browser and navigate to `http://localhost:5000/graphql` to test queries and mutations.
+
+## Example Queries and Mutations
+
+### User Queries
+
+**Get All Users**
+
+```graphql
+query getAllUsers {
+  users {
+    name
+    email
+    role
+  }
+}
+```
