@@ -79,7 +79,7 @@ npm run dev
 
 ### User Queries
 
-**Get All Users**
+**Get All Users**:
 
 ```graphql
 query getAllUsers {
@@ -87,6 +87,120 @@ query getAllUsers {
     name
     email
     role
+  }
+}
+```
+
+**Get One Course**:
+
+```graphql
+query getSingularCourse {
+  course(id: ":id") {
+    _id
+    title
+    description
+    collectionId
+  }
+}
+```
+
+**Get All Collections**:
+
+```graphql
+query getAllCollections {
+  collections {
+    name
+    courses {
+      title
+      description
+    }
+  }
+}
+```
+
+**Register User**:
+
+```graphql
+mutation register {
+  register(
+    input: {
+      name: "Test User"
+      email: "testuser@contact.com"
+      password: "password"
+    }
+  ) {
+    name
+    email
+    role
+  }
+}
+```
+
+**Add a course**:
+
+```graphql
+mutation AddCourse {
+  addCourse(
+    input: {
+      title: "Data Science with Python"
+      description: "Explore data analysis, visualization, and machine learning techniques using Python."
+      duration: "10 weeks"
+      outcome: "Students will gain proficiency in data manipulation, visualization, and predictive modeling using Python."
+    }
+  ) {
+    title
+    description
+    authorId
+    collectionId
+  }
+}
+```
+
+**Update course**:
+
+```graphql
+mutation UpdateCourse {
+  updateCourse(
+    id: ":id"
+    input: {
+      title: "Advanced Full Stack Web Development"
+      description: "Deep dive into full-stack development with advanced topics in Node.js and React."
+      duration: "4 weeks"
+    }
+  ) {
+    title
+    description
+    duration
+    outcome
+    authorId
+    collectionId
+  }
+}
+```
+
+**Delete a course**:
+
+```graphql
+mutation DeleteCourse {
+  deleteCourse(id: ":id") {
+    title
+    description
+    duration
+    outcome
+  }
+}
+```
+
+**Add course to a collectione**:
+
+```graphql
+mutation AddToCollection {
+  addToCollection(collectionId: ":collectionId", courseId: ":courseId") {
+    name
+    courses {
+      title
+      description
+    }
   }
 }
 ```

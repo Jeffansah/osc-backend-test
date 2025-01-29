@@ -14,6 +14,7 @@ export const CourseType = new GraphQLObjectType({
   name: "Course",
   fields: () => ({
     // field function to populate the props of the Course Type object
+    _id: { type: GraphQLID },
     title: { type: GraphQLString },
     description: { type: GraphQLString },
     duration: { type: GraphQLString },
@@ -39,6 +40,7 @@ export const CourseInputType = new GraphQLInputObjectType({
 export const CollectionType = new GraphQLObjectType({
   name: "Collection",
   fields: () => ({
+    _id: { type: GraphQLID },
     name: { type: GraphQLString },
     courses: {
       type: new GraphQLList(CourseType),
@@ -63,6 +65,7 @@ const UserRoleEnumType = new GraphQLEnumType({
 export const UserType = new GraphQLObjectType({
   name: "User",
   fields: () => ({
+    _id: { type: GraphQLID },
     name: { type: GraphQLString },
     email: { type: GraphQLString },
     role: { type: UserRoleEnumType },
