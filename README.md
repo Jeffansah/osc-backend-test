@@ -122,13 +122,7 @@ query getAllCollections {
 
 ```graphql
 mutation register {
-  register(
-    input: {
-      name: "Test User"
-      email: "testuser@contact.com"
-      password: "password"
-    }
-  ) {
+  register(input: { name: ":name", email: ":email", password: ":password" }) {
     name
     email
     role
