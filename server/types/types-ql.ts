@@ -1,4 +1,9 @@
-import { GraphQLID, GraphQLObjectType, GraphQLString } from "graphql";
+import {
+  GraphQLID,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLString,
+} from "graphql";
 
 // Course Type
 export const CourseType = new GraphQLObjectType({
@@ -10,5 +15,15 @@ export const CourseType = new GraphQLObjectType({
     description: { type: GraphQLString },
     duration: { type: GraphQLString },
     outcome: { type: GraphQLString },
+  }),
+});
+
+// Course Collection Type
+export const CollectionType = new GraphQLObjectType({
+  name: "Collection",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    courses: { type: new GraphQLList(CourseType) },
   }),
 });

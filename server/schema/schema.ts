@@ -1,5 +1,5 @@
 import { GraphQLSchema } from "graphql";
-import { RootQuery } from "../queries/RootQuery";
+import { RootQuery } from "../queries/CourseQueries";
 
 // Setting Schema
 const schema = new GraphQLSchema({
