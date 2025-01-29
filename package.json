@@ -19,7 +19,7 @@
     "express-graphql": "^0.12.0",
     "graphql": "^15.10.1",
     "mongo": "^0.1.0",
-    "mongose": "^0.0.2-security"
+    "mongoose": "^8.9.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

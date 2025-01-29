@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { graphqlHTTP } from "express-graphql";
 import schema from "./server/schema/schema";
+import { connectToDatabase } from "./mongo";
 
 // Loading Environment Variables
 dotenv.config();
@@ -24,6 +25,9 @@ app.use(
 );
 
 // Running the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+connectToDatabase().then(() => {
+  app.listen(port, () => {
+    console.clear();
+    console.log(`Server is running on port ${port}`);
+  });
 });
