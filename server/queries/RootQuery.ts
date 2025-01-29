@@ -6,9 +6,10 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
-import { CollectionType, CourseType } from "../types/types-ql";
+import { CollectionType, CourseType, UserType } from "../types/types-ql";
 import { Collection } from "../../mongo/models/CollectionsModel";
 import { Course } from "../../mongo/models/CourseModel";
+import { User } from "../../mongo/models/UserModel";
 
 // Query To Get a Single Course
 export const RootQuery = new GraphQLObjectType({
@@ -64,6 +65,28 @@ export const RootQuery = new GraphQLObjectType({
       type: CollectionType,
       args: { id: { type: GraphQLString } },
       resolve: async (_, args) => await Collection.findById(args.id), // returns the collection with the matching id
+    },
+
+    /** USER QUERIES **/
+
+    // Query to get a single user
+    user: {
+      type: UserType,
+      args: { id: { type: GraphQLString } },
+      resolve: async (_, args) => await User.findById(args.id), // returns the user with the matching id
+    },
+
+    // Query to get all users
+    users: {
+      type: new GraphQLList(UserType),
+      resolve: async (_, args, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        return await User.find(); // returns all users
+      },
     },
   },
 });

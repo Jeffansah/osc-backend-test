@@ -5,7 +5,6 @@ import {
   GraphQLString,
 } from "graphql";
 import {
-  CollectionInputType,
   CollectionType,
   CourseInputType,
   CourseType,
@@ -20,7 +19,10 @@ import { encryptPassword } from "../../utils/encryptPassword";
 import { decryptPassword } from "../../utils/decryptPassword";
 import { generateToken } from "../../utils/generateToken";
 import { log } from "console";
-import { Collection } from "../../mongo/models/CollectionsModel";
+import {
+  Collection,
+  ICollectionDoc,
+} from "../../mongo/models/CollectionsModel";
 
 export const mutation = new GraphQLObjectType({
   name: "Mutation",
@@ -149,9 +151,7 @@ export const mutation = new GraphQLObjectType({
     addCollection: {
       type: CollectionType,
       args: {
-        input: {
-          type: new GraphQLNonNull(CollectionInputType),
-        },
+        name: { type: new GraphQLNonNull(GraphQLString) },
       },
       resolve: async (_, { name }, { req, res }) => {
         // verify if the user is authenticated
@@ -165,6 +165,34 @@ export const mutation = new GraphQLObjectType({
           courses: [], // Initialize the courses array with an empty array
         });
         return newCollection; // Return the newly created collection
+      },
+    },
+    updateCollection: {
+      type: CollectionType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+        name: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve: async (_, { id, name }, { req, res }) => {
+        // verify if the user is authenticated
+        if (!req.user || req.user.role !== "admin") {
+          throw new Error("Unauthorized");
+        }
+
+        // Find the collection by ID and if it exists
+        const collection = await Collection.findById(id);
+
+        if (!collection) {
+          throw new Error(`Collection with ID ${id} not found`);
+        }
+
+        // Update the collection name field
+        const updatedCollection = await Collection.findOneAndUpdate(
+          { _id: id },
+          { $set: { name } },
+          { new: true }
+        );
+        return updatedCollection; // Return the updated collection
       },
     },
     addToCollection: {
@@ -193,11 +221,18 @@ export const mutation = new GraphQLObjectType({
           throw new Error(`Course with ID ${courseId} not found`);
         }
 
+        if (collection.courses.includes(course._id))
+          throw new Error("Course already exists in Collection");
+
         const updatedCollection = await Collection.findByIdAndUpdate(
           collectionId,
           { $push: { courses: courseId } }, // add courseId to courses array
           { new: true } // Return the updated document
         );
+
+        await Course.findByIdAndUpdate(course._id, {
+          collectionId: updatedCollection._id, // Update the course collectionId field after adding course to collection
+        });
 
         return updatedCollection; // Return the updated collection
       },

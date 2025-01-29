@@ -7,7 +7,6 @@ import {
   GraphQLString,
 } from "graphql";
 import { Course } from "../../mongo/models/CourseModel";
-import exp from "constants";
 
 /** COURSE **/
 // Course Type
@@ -44,16 +43,10 @@ export const CollectionType = new GraphQLObjectType({
     courses: {
       type: new GraphQLList(CourseType),
       // resolver function to get the courses of the collection by the collection Id matching with the mongo id of the collection
-      resolve: (parent) => Course.find({ collectionId: parent._id }),
+      resolve: async (parent) =>
+        await Course.find({ collectionId: parent._id }),
     },
   }),
-});
-
-export const CollectionInputType = new GraphQLInputObjectType({
-  name: "CollectionInput",
-  fields: {
-    name: { type: GraphQLString },
-  },
 });
 
 /** USER **/
