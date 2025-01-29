@@ -4,10 +4,9 @@ import {
   GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
+  GraphQLString,
 } from "graphql";
-import { collections, courses } from "../../data/dummyData";
 import { CollectionType, CourseType } from "../types/types-ql";
-import { ICourse } from "../../types-ts/CourseType";
 import { Collection } from "../../mongo/models/CollectionsModel";
 import { Course } from "../../mongo/models/CourseModel";
 
@@ -20,10 +19,10 @@ export const RootQuery = new GraphQLObjectType({
     // Query to get a single course
     course: {
       type: CourseType,
-      args: { id: { type: GraphQLID } },
-      resolve: (_, args) =>
+      args: { id: { type: GraphQLString } },
+      resolve: async (_, args) =>
         // resolver function that takes args as parameters to find the course with the matching id
-        Course.findById(args.id),
+        await Course.findById(args.id),
     },
     // Query to get all courses
     courses: {
@@ -41,14 +40,15 @@ export const RootQuery = new GraphQLObjectType({
           }),
         },
       },
-      resolve: (_, args) => {
+      resolve: async (_, args) => {
         const options = {
           sort: { title: args.sortOrder === "ASC" ? 1 : -1 }, // Sorting order based on the argument
           limit: args.limit || 0, // Limiting the number of results
         };
 
         // Fetch all courses with the given options
-        return Course.find({}, _, options);
+        const courses = await Course.find({}, _, options);
+        return courses;
       },
     },
 
@@ -62,8 +62,8 @@ export const RootQuery = new GraphQLObjectType({
     // Query to get a single collection
     collection: {
       type: CollectionType,
-      args: { id: { type: GraphQLID } },
-      resolve: (_, args) => Collection.findById(args.id), // returns the collection with the matching id
+      args: { id: { type: GraphQLString } },
+      resolve: async (_, args) => await Collection.findById(args.id), // returns the collection with the matching id
     },
   },
 });

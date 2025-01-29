@@ -1,7 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ICourseDoc extends Document {
-  id: string;
   title: string;
   description: string;
   duration: string;
@@ -10,7 +9,6 @@ export interface ICourseDoc extends Document {
 
 const CourseSchema = new Schema<ICourseDoc>(
   {
-    id: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
     duration: { type: String, required: true },
