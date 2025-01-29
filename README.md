@@ -47,4 +47,30 @@ This is a GraphQL API for Open Study College that allows internal users to retri
 
    ```
 
-2.
+2. **Install Dependencies:**
+
+   ```bash
+   npm install
+
+   ```
+
+3. **Set Up Environment Variables**:
+   Create a `.env` file in the root directory with:
+
+   ```plaintext
+   PORT=your_port
+   JWT_SECRET=your_jwt_secret
+   MONGODB_URI=your_mongodb_connection_string
+
+   ```
+
+4. **Run the Application:**:
+   Start the server in development mode:
+
+```bash
+npm run dev
+
+```
+
+5. **Access the GraphQL Playground:**:
+   Open your browser and navigate to `http://localhost:5000/graphql` to test queries and mutations.
