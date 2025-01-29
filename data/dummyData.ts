@@ -45,3 +45,31 @@ export const courses = [
       "Students will be able to create and publish mobile applications on both iOS and Android platforms.",
   },
 ];
+
+export const collections = [
+  {
+    id: "1",
+    name: "Programming Courses",
+    courseIds: ["1", "4"],
+  },
+  {
+    id: "2",
+    name: "Web Development",
+    courseIds: ["2"],
+  },
+  {
+    id: "3",
+    name: "Data Science",
+    courseIds: ["3"],
+  },
+  {
+    id: "4",
+    name: "Mobile Development",
+    courseIds: ["5"],
+  },
+  {
+    id: "5",
+    name: "Machine Learning",
+    courseIds: ["4"],
+  },
+];

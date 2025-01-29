@@ -4,6 +4,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from "graphql";
+import { courses } from "../../data/dummyData";
 
 // Course Type
 export const CourseType = new GraphQLObjectType({
@@ -24,6 +25,12 @@ export const CollectionType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     name: { type: GraphQLString },
-    courses: { type: new GraphQLList(CourseType) },
+    courses: {
+      type: new GraphQLList(CourseType),
+      resolve: (parent) =>
+        parent.courseIds.map((id: string) =>
+          courses.find((course) => course.id === id)
+        ),
+    },
   }),
 });
