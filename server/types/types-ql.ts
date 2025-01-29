@@ -5,6 +5,7 @@ import {
   GraphQLString,
 } from "graphql";
 import { courses } from "../../data/dummyData";
+import { Course } from "../../mongo/models/CourseModel";
 
 // Course Type
 export const CourseType = new GraphQLObjectType({
@@ -28,9 +29,7 @@ export const CollectionType = new GraphQLObjectType({
     courses: {
       type: new GraphQLList(CourseType),
       resolve: (parent) =>
-        parent.courseIds.map((id: string) =>
-          courses.find((course) => course.id === id)
-        ),
+        parent.courseIds.map((id: string) => Course.findById(id)),
     },
   }),
 });

@@ -8,6 +8,8 @@ import {
 import { collections, courses } from "../../data/dummyData";
 import { CollectionType, CourseType } from "../types/types-ql";
 import { ICourse } from "../../types-ts/CourseType";
+import { Collection } from "../../mongo/models/CollectionsModel";
+import { Course } from "../../mongo/models/CourseModel";
 
 // Query To Get a Single Course
 export const RootQuery = new GraphQLObjectType({
@@ -21,7 +23,7 @@ export const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve: (_, args) =>
         // resolver function that takes args as parameters to find the course with the matching id
-        courses.find((course: ICourse) => course.id === args.id),
+        Course.findById(args.id),
     },
     // Query to get all courses
     courses: {
@@ -40,13 +42,13 @@ export const RootQuery = new GraphQLObjectType({
         },
       },
       resolve: (_, args) => {
-        let sortedCourses = [...courses];
-        if (args.sortOrder === "ASC") {
-          sortedCourses.sort((a, b) => a.title.localeCompare(b.title)); // Sorting in ascending order by course title
-        } else if (args.sortOrder === "DESC") {
-          sortedCourses.sort((a, b) => b.title.localeCompare(a.title)); // Sorting in descending order by course title
-        }
-        return args.limit ? sortedCourses.slice(0, args.limit) : sortedCourses; // Returning the sorted courses with the limit applied if provided
+        const options = {
+          sort: { title: args.sortOrder === "ASC" ? 1 : -1 }, // Sorting order based on the argument
+          limit: args.limit || 0, // Limiting the number of results
+        };
+
+        // Fetch all courses with the given options
+        return Course.find({}, _, options);
       },
     },
 
@@ -55,14 +57,13 @@ export const RootQuery = new GraphQLObjectType({
     // Query to get all collections
     collections: {
       type: new GraphQLList(CollectionType),
-      resolve: () => collections, // returns all collections
+      resolve: () => Collection.find(), // returns all collections
     },
     // Query to get a single collection
     collection: {
       type: CollectionType,
       args: { id: { type: GraphQLID } },
-      resolve: (_, args) =>
-        collections.find((collection) => collection.id === args.id), // returns the collection with the matching id
+      resolve: (_, args) => Collection.findById(args.id), // returns the collection with the matching id
     },
   },
 });

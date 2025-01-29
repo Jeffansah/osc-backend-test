@@ -1,10 +1,4 @@
-import mongoose, {
-  Schema,
-  Document,
-  Model,
-  models,
-  type ObjectId,
-} from "mongoose";
+import mongoose, { Schema, Document, type ObjectId } from "mongoose";
 
 export interface ICollectionDoc extends Document {
   id: string;
@@ -22,5 +16,5 @@ const CollectionSchema = new Schema<ICollectionDoc>(
 );
 
 export const Collection =
-  models.Collection ||
+  mongoose.models.Collection ||
   mongoose.model<ICollectionDoc>("Collection", CollectionSchema);
